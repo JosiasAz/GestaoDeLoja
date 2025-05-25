@@ -1,8 +1,8 @@
 package model;
 
 public class ProdutoFisico extends Produto {
-    public ProdutoFisico(String nome, String descricao, double preco, int quantidade) {
-        super(nome, descricao, preco, quantidade);
+    public ProdutoFisico(String nome, String descricao, double preco, int quantidade, String categoria) {
+        super(nome, descricao, preco, quantidade, categoria);// adicionei a categoria nos modelos
     }
 
     @Override
@@ -13,5 +13,9 @@ public class ProdutoFisico extends Produto {
     @Override
     public double getDesconto() {
         return 5.0;
+    }
+
+    public String toString(){
+        return String.format("Nome: %s \n Descrição: %s \n Preço: R$%.2f \n Quantidade: %d", nome,descricao,preco,quantidade);
     }
 }

@@ -2,14 +2,14 @@ package view;
 
 import model.*;
 import Controller.LojaService;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 public class ProdutoFrame extends JFrame {
     private LojaService lojaService;
-    private JComboBox<String> tipoProdutoCombo;
+    private JComboBox<String> tipoProdutoCombo, categoriaCombo;
     private JTextField nomeField, descricaoField, precoField, quantidadeField;
 
     public ProdutoFrame(LojaService lojaService) {
@@ -19,7 +19,7 @@ public class ProdutoFrame extends JFrame {
 
     private void initUI() {
         setTitle("Cadastro de Produtos");
-        setSize(400, 400);
+        setSize(500, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -28,10 +28,14 @@ public class ProdutoFrame extends JFrame {
 
         // Campos do formulário
         panel.add(new JLabel("Tipo de Produto:"));
-        tipoProdutoCombo = new JComboBox<>(new String[]{"Físico", "Digital"});
+        tipoProdutoCombo = new JComboBox<>(new String[]{"","Físico", "Digital"});
         panel.add(tipoProdutoCombo);
 
-        panel.add(new JLabel("Nome:"));
+        panel.add(new JLabel("Categoria:"));
+        categoriaCombo = new JComboBox<>(new String[]{"","Eletronicos", "Modas", "Relogios e Joias", "Brinquedos", "Livros"});
+        panel.add(categoriaCombo);
+
+        panel.add(new JLabel("Produto:"));
         nomeField = new JTextField();
         panel.add(nomeField);
 
@@ -50,8 +54,16 @@ public class ProdutoFrame extends JFrame {
         // Botão de cadastro
         JButton cadastrarBtn = new JButton("Cadastrar Produto");
         cadastrarBtn.addActionListener(this::cadastrarProduto);
+
+        // Botão Consultar Estoque
+        JButton consultarBtn = new JButton("Consultar Estoque");
+        consultarBtn.addActionListener(this::consultarEstoque);
+
         panel.add(new JLabel());
         panel.add(cadastrarBtn);
+
+        panel.add(new JLabel());
+        panel.add(consultarBtn);
 
         add(panel);
     }
@@ -60,23 +72,67 @@ public class ProdutoFrame extends JFrame {
         try {
             String tipo = (String) tipoProdutoCombo.getSelectedItem();
             String nome = nomeField.getText();
+            String categoria = (String) categoriaCombo.getSelectedItem(); // Pega a categoria selecionada
             String descricao = descricaoField.getText();
             double preco = Double.parseDouble(precoField.getText());
             int quantidade = Integer.parseInt(quantidadeField.getText());
 
+            // Validação dos campos obrigatórios
+            if(tipo == null || tipo.isEmpty() || categoria == null || categoria.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Selecione o tipo e a categoria do produto!",
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             Produto produto;
             if (tipo.equals("Físico")) {
-                produto = new ProdutoFisico(nome, descricao, preco, quantidade);
+                produto = new ProdutoFisico(nome, descricao, preco, quantidade, categoria); // Adiciona categoria
             } else {
-                produto = new ProdutoDigital(nome, descricao, preco, quantidade);
+                produto = new ProdutoDigital(nome, descricao, preco, quantidade, categoria); // Adiciona categoria
             }
 
             lojaService.cadastrarProduto(produto);
             JOptionPane.showMessageDialog(this, "Produto cadastrado com sucesso!");
             limparCampos();
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Preço e quantidade devem ser números válidos!", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Preço e quantidade devem ser números válidos!",
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void consultarEstoque(ActionEvent e) {
+        List<Produto> produtos = lojaService.listarProdutos();
+
+        if(produtos.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Nenhum produto cadastrado no estoque!",
+                    "Estoque",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // Cria modelo de tabela com categoria
+        String[] colunas = {"Produto", "Categoria", "Valor", "Quantidade"};
+        Object[][] dados = new Object[produtos.size()][4];
+
+        for(int i = 0; i < produtos.size(); i++) {
+            Produto p = produtos.get(i);
+            dados[i][0] = p.getNome();
+            dados[i][1] = p.getCategoria(); // Mostra a categoria
+            dados[i][2] = String.format("R$ %.2f", p.getPreco());
+            dados[i][3] = p.getQuantidade();
+        }
+
+        JTable tabela = new JTable(dados, colunas);
+        JScrollPane scrollPane = new JScrollPane(tabela);
+
+        JOptionPane.showMessageDialog(this, scrollPane,
+                "Estoque - " + produtos.size() + " itens",
+                JOptionPane.PLAIN_MESSAGE);
     }
 
     private void limparCampos() {
@@ -84,5 +140,7 @@ public class ProdutoFrame extends JFrame {
         descricaoField.setText("");
         precoField.setText("");
         quantidadeField.setText("");
+        tipoProdutoCombo.setSelectedIndex(0);
+        categoriaCombo.setSelectedIndex(0);
     }
 }

@@ -1,8 +1,8 @@
 package model;
 
 public class ProdutoDigital extends Produto {
-    public ProdutoDigital(String nome, String descricao, double preco, int quantidade) {
-        super(nome, descricao, preco, quantidade);
+    public ProdutoDigital(String nome, String descricao, double preco, int quantidade, String categoria) {
+        super(nome, descricao, preco, quantidade, categoria); // adicionei a categoria para que possa retorna na tabela
     }
 
     @Override
