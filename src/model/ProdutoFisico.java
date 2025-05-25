@@ -9,4 +9,9 @@ public class ProdutoFisico extends Produto {
     public double calcularPrecoComDesconto() {
         return preco * 0.95; // 5% de desconto
     }
+
+    @Override
+    public double getDesconto() {
+        return 5.0;
+    }
 }

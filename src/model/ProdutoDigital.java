@@ -14,4 +14,10 @@ public class ProdutoDigital extends Produto {
         return String.format("Nome: %s \n Descrição: %s \n Preço: R$%.2f \n Quantidade: %d", nome,descricao,preco,quantidade);
     }
 
+    @Override
+    public double getDesconto() {
+        return 10.0;
+    }
+
+
 }
