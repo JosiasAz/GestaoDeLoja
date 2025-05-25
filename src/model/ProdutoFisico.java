@@ -10,6 +10,11 @@ public class ProdutoFisico extends Produto {
         return preco * 0.95; // 5% de desconto
     }
 
+    @Override
+    public double getDesconto() {
+        return 5.0;
+    }
+
     public String toString(){
         return String.format("Nome: %s \n Descrição: %s \n Preço: R$%.2f \n Quantidade: %d", nome,descricao,preco,quantidade);
     }

@@ -5,7 +5,7 @@ public abstract class Produto {
     protected String nome;
     protected String descricao;
     protected double preco;
-    protected int quantidade; //inicializei a categoria
+    protected int quantidade;
 
     public Produto(String nome, String descricao, double preco, int quantidade, String categoria) {
         this.nome = nome;
@@ -22,6 +22,13 @@ public abstract class Produto {
     public String getDescricao() { return descricao; }
     public double getPreco() { return preco; }
     public int getQuantidade() { return quantidade; }
+
+    public double getDesconto(){
+        return 0;
+    }
+
+    public void setQuantidade(int novoEstoque) {
+    }
     public String getcategoria() { return categoria;}// retorna a categoria como String
 
 
