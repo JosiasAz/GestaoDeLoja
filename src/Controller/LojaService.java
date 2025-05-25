@@ -29,6 +29,12 @@ public class LojaService {
     }
 
     // Getters
-    public List<Produto> getProdutos() { return new ArrayList<>(produtos); }
-    public List<Cliente> getClientes() { return new ArrayList<>(clientes); }
+    public List<Produto> getProdutos() {
+        return new ArrayList<>(produtos);
+    }
+
+    public List<Cliente> getClientes() {
+        return new ArrayList<>(clientes);
+    }
+
 }

@@ -4,74 +4,154 @@ import model.Cliente;
 import Controller.LojaService;
 
 import javax.swing.*;
+import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
-public class ClienteFrame extends JFrame {
+public class ClienteFrame extends JFrame implements ActionListener {
     private LojaService lojaService;
-    private JTextField nomeField, cpfField, telefoneField, enderecoField;
+
+    private JLabel lblNome, lblCpf, lblTelefone, lblEndereco, lblDataNascimento, lblEmail, lblReceberPromocoes;
+    private JTextField campoNome, campoCpf, campoTelefone, campoEndereco, campoEmail;
+    private JFormattedTextField campoDataNascimento;
+    private JCheckBox checkReceberPromocoes;
+    private JButton cadastrarBtn, verClientesBtn, cancelarBtn;
 
     public ClienteFrame(LojaService lojaService) {
         this.lojaService = lojaService;
-        initUI();
+        criarComponentes();
     }
 
-    private void initUI() {
+    private void criarComponentes() {
         setTitle("Cadastro de Clientes");
-        setSize(400, 300);
+        setSize(450, 370);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel painel = new JPanel(new GridLayout(0, 2, 10, 10));
+        painel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Campos do formulário
-        panel.add(new JLabel("Nome:"));
-        nomeField = new JTextField();
-        panel.add(nomeField);
+        lblNome = new JLabel("Nome:");
+        lblCpf = new JLabel("CPF:");
+        lblTelefone = new JLabel("Telefone:");
+        lblEndereco = new JLabel("Endereço:");
+        lblDataNascimento = new JLabel("Data de Nascimento:");
+        lblEmail = new JLabel("Email:");
+        lblReceberPromocoes = new JLabel("Receber Promoções:");
 
-        panel.add(new JLabel("CPF:"));
-        cpfField = new JTextField();
-        panel.add(cpfField);
+        campoNome = new JTextField();
+        campoCpf = new JTextField();
+        campoTelefone = new JTextField();
+        campoEndereco = new JTextField();
+        campoEmail = new JTextField();
 
-        panel.add(new JLabel("Telefone:"));
-        telefoneField = new JTextField();
-        panel.add(telefoneField);
-
-        panel.add(new JLabel("Endereço:"));
-        enderecoField = new JTextField();
-        panel.add(enderecoField);
-
-        // Botão de cadastro
-        JButton cadastrarBtn = new JButton("Cadastrar Cliente");
-        cadastrarBtn.addActionListener(this::cadastrarCliente);
-        panel.add(new JLabel());
-        panel.add(cadastrarBtn);
-
-        add(panel);
-    }
-
-    private void cadastrarCliente(ActionEvent e) {
-        String nome = nomeField.getText();
-        String cpf = cpfField.getText();
-        String telefone = telefoneField.getText();
-        String endereco = enderecoField.getText();
-
-        if (nome.isEmpty() || cpf.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nome e CPF são obrigatórios!", "Erro", JOptionPane.ERROR_MESSAGE);
-            return;
+        try {
+            MaskFormatter dataMask = new MaskFormatter("##/##/####");
+            dataMask.setPlaceholderCharacter('_');
+            campoDataNascimento = new JFormattedTextField(dataMask);
+        } catch (Exception e) {
+            campoDataNascimento = new JFormattedTextField();
         }
 
-        Cliente cliente = new Cliente(nome, cpf, telefone, endereco);
-        lojaService.cadastrarCliente(cliente);
-        JOptionPane.showMessageDialog(this, "Cliente cadastrado com sucesso!");
-        limparCampos();
+        checkReceberPromocoes = new JCheckBox();
+
+        painel.add(lblNome);
+        painel.add(campoNome);
+
+        painel.add(lblCpf);
+        painel.add(campoCpf);
+
+        painel.add(lblTelefone);
+        painel.add(campoTelefone);
+
+        painel.add(lblEndereco);
+        painel.add(campoEndereco);
+
+        painel.add(lblDataNascimento);
+        painel.add(campoDataNascimento);
+
+        painel.add(lblEmail);
+        painel.add(campoEmail);
+
+        painel.add(lblReceberPromocoes);
+        painel.add(checkReceberPromocoes);
+
+        cadastrarBtn = new JButton("Cadastrar Cliente");
+        cadastrarBtn.addActionListener(this);
+        painel.add(cadastrarBtn);
+
+        verClientesBtn = new JButton("Ver Clientes Cadastrados");
+        verClientesBtn.addActionListener(this);
+        painel.add(verClientesBtn);
+
+        cancelarBtn = new JButton("Voltar");
+        cancelarBtn.addActionListener(this);
+        painel.add(cancelarBtn);
+
+        add(painel);
     }
 
-    private void limparCampos() {
-        nomeField.setText("");
-        cpfField.setText("");
-        telefoneField.setText("");
-        enderecoField.setText("");
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == cadastrarBtn) {
+            String nome = campoNome.getText();
+            String cpfTexto = campoCpf.getText();
+            String telefoneTexto = campoTelefone.getText();
+            String endereco = campoEndereco.getText();
+            String dataNascimento = campoDataNascimento.getText();
+            String email = campoEmail.getText();
+            boolean receberPromocoes = checkReceberPromocoes.isSelected();
+
+            if (nome.isEmpty() || cpfTexto.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Nome e CPF são obrigatórios!",
+                        "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                Long.parseLong(cpfTexto);
+                Long.parseLong(telefoneTexto);
+
+                Cliente cliente = new Cliente(nome, cpfTexto, telefoneTexto, endereco, dataNascimento, email, receberPromocoes);
+                lojaService.cadastrarCliente(cliente);
+
+                JOptionPane.showMessageDialog(this, "Cliente cadastrado com sucesso!");
+
+                campoNome.setText("");
+                campoCpf.setText("");
+                campoTelefone.setText("");
+                campoEndereco.setText("");
+                campoDataNascimento.setValue(null);
+                campoEmail.setText("");
+                checkReceberPromocoes.setSelected(false);
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "CPF e Telefone devem conter apenas números!", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        if (e.getSource() == verClientesBtn) {
+            List<Cliente> clientes = lojaService.getClientes();
+            if (clientes.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Nenhum cliente cadastrado ainda.");
+            } else {
+                StringBuilder mensagem = new StringBuilder();
+                mensagem.append("Total de clientes: ").append(clientes.size()).append("\n\n");
+                for (Cliente c : clientes) {
+                    mensagem.append("- ").append(c.getNome()).append("\n");
+                }
+
+                JTextArea textArea = new JTextArea(mensagem.toString());
+                textArea.setEditable(false);
+
+                JOptionPane.showMessageDialog(this, textArea, "Clientes Cadastrados", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+
+        if (e.getSource() == cancelarBtn) {
+            dispose();
+        }
     }
 }
